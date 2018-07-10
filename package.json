@@ -26,9 +26,7 @@
         "ws": "^0.4.32",
         "iconv-lite": "^0.4.7",
         "urlencode": "^1.1.0",
-        "request": "~2.72.0",
-        "glob": "^7.0.3",
-        "joi": "^8.1.0"
+        "request": "~2.72.0"
     },
     "devDependencies": {
         "code": "^4.0.0",
