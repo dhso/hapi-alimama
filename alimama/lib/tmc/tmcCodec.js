@@ -38,12 +38,7 @@ TmcCodec.prototype.writeMessage = function(message) {
             buffer.write(key,index+6,'UTF-8');
             index = index + length + 6;
 
-            var type = typeof message.content[key];
-            if(type == 'number'){
-                length = 8;
-            }else{
-                length = Buffer.byteLength(message.content[key]);
-            }
+            length = Buffer.byteLength(message.content[key]);
             if(length == 0){
                 buffer.writeUInt8(Common.enum.ValueFormat.Void,index);
             }else{
@@ -52,27 +47,10 @@ TmcCodec.prototype.writeMessage = function(message) {
                     buffer.writeUInt8(Common.enum.ValueFormat.Byte,index);
                     buffer.writeUInt8(message.content[key],index+1);
                     index += 2;
-                } else if(key == 'id'){
-                    buffer.writeUInt8(Common.enum.ValueFormat.Int64,index);
-                    var str = message.content[key];
-                    var pos = 0;
-                    var len = str.length;
-                    var high = 0;
-                    var low = 0;
-                    while (pos < len) {
-                        var chr = parseInt(str[pos++], 10);
-                        if (!(chr >= 0)) break;
-                        low = low * 10 + chr;
-                        high = high * 10 + Math.floor(low / 4294967296);
-                        low %= 4294967296;
-                    }
-                    buffer.writeUInt32LE(low,index + 1);
-                    buffer.writeUInt32LE(high,index + 5);
-                    index += 9;
                 } else if(type == 'number'){
                     buffer.writeUInt8(Common.enum.ValueFormat.Int64,index);
-                    var big = ~~(message.content[key] / (0xFFFFFFFF + 1));
-                    var low = (message.content[key] % (0xFFFFFFFF + 1));
+                    const big = ~~(message.content[key] / (0xFFFFFFFF + 1));
+                    const low = (message.content[key] % (0xFFFFFFFF + 1));
                     buffer.writeUInt32LE(low,index + 1);
                     buffer.writeUInt32LE(big,index + 5);
                     index += 9;
@@ -101,10 +79,10 @@ TmcCodec.prototype.readMessage = function(buffer) {
                 message.statusCode = buffer.readUInt32LE(index);
                 index += 4;
             } else if(headerType === Common.enum.HeaderType.StatusPhrase){
-                var length = buffer.readUInt32LE(index);
-                message.statusPhase = buffer.toString('UTF-8',index+4,index+length+4);
-                index = index + length + 4;
-            } else if(headerType === Common.enum.HeaderType.Flag){
+	            var length = buffer.readUInt32LE(index);
+	            message.statusPhase = buffer.toString('UTF-8',index+4,index+length+4);
+	            index = index + length + 4;
+	        } else if(headerType === Common.enum.HeaderType.Flag){
                 message.flag = buffer.readUInt32LE(index);
                 index += 4;
             } else if(headerType === Common.enum.HeaderType.Token){
@@ -118,21 +96,7 @@ TmcCodec.prototype.readMessage = function(buffer) {
 
                 var format = buffer.readUInt8(index);
                 index += 1;
-                if(format == Common.enum.ValueFormat.Int64){
-                    var high = buffer.readUInt32LE(index+4);
-                    var low = buffer.readUInt32LE(index);
-                    var str = "";
-                    var radix = 10;
-                    while (1) {
-                        var mod = (high % radix) * 4294967296 + low;
-                        high = Math.floor(high / radix);
-                        low = Math.floor(mod / radix);
-                        str = (mod % radix).toString(radix) + str;
-                        if (!high && !low) break;
-                    }
-                    message[key] =  str;
-                    index += 8;
-                }else if(format == Common.enum.ValueFormat.Date){
+                if(format == Common.enum.ValueFormat.Int64 || format == Common.enum.ValueFormat.Date){
                     message[key] = buffer.readUInt32LE(index) + buffer.readUInt32LE(index+4) * 4294967296;
                     index += 8;
                 }else if(format == Common.enum.ValueFormat.CountedString){
@@ -140,14 +104,14 @@ TmcCodec.prototype.readMessage = function(buffer) {
                     message[key] = buffer.toString('UTF-8',index+4,index+length+4);
                     index = index + length + 4;
                 }else if(format == Common.enum.ValueFormat.Byte){
-                    message[key] = buffer.readUInt8(index);
-                    index += 1;
+	                message[key] = buffer.readUInt8(index);
+	                index += 1;
                 }else if(format == Common.enum.ValueFormat.Int32){
-                    message[key] = buffer.readUInt32LE(index);
-                    index += 4;
+	                message[key] = buffer.readUInt32LE(index);
+	                index += 4;
                 }else if(format == Common.enum.ValueFormat.Int16){
-                    message[key] = buffer.readUInt16LE(index);
-                    index += 2;
+	                message[key] = buffer.readUInt16LE(index);
+	                index += 2;
                 }
             }
             headerType = buffer.readUInt16LE(index);

@@ -8,7 +8,7 @@ http.createServer(function (request, response) {
 		body.push(chunk);
 	}) ;
 	request.on('end', function () {
-		response.write(""+spiUtil.checkSignForSpi(request.url,body,request.headers,'0ebbcccfee18d7ad1aebc5b135ffa906'));
+		response.write(""+spiUtil.checkSignForSpi(request.url,body,request.headers,'********************'));
 		response.end();
 	});
 }).listen(8888) ;

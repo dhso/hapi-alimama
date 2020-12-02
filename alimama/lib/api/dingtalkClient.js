@@ -1,5 +1,5 @@
-var util = require('../../../../Desktop/sdk-nodejs-24570894/lib/topUtil.js');
-var RestClient = require('./../../../../Desktop/sdk-nodejs-24570894/lib/api/network.js')
+var util = require('../topUtil.js');
+var RestClient = require('./network.js')
 var Stream = require('stream')
 
 /**
@@ -76,6 +76,8 @@ DingtalkClient.prototype.request = function (type,params,callback) {
     for (var key in params) {
         if(typeof params[key] === 'object' && Buffer.isBuffer(params[key])){
             request.attach(key,params[key],{knownLength:params[key].length,filename:key})
+        } else if(typeof params[key] === 'object' && Stream.Readable(params[key]) && !util.is(params[key]).a(String)){
+            request.attach(key, params[key]);
         } else if(typeof params[key] === 'object'){
             args[key] = JSON.stringify(params[key]);
         } else{
@@ -137,11 +139,11 @@ DingtalkClient.prototype.sign = function (params) {
  * execute top api
  */
 DingtalkClient.prototype.execute = function (apiname,params,callback) {
-    this.invoke(apiname, params, [util.getApiResponseName(apiname)], callback);
+    this.invoke('post',apiname, params, [util.getApiResponseName(apiname)], callback);
 };
 
 DingtalkClient.prototype.get = function (apiname,params,callback) {
-    this.invoke(apiname, params, [util.getApiResponseName(apiname)], callback);
+    this.invoke('get',apiname, params, [util.getApiResponseName(apiname)], callback);
 };
 
 exports.DingtalkClient = DingtalkClient;

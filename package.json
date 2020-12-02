@@ -1,6 +1,6 @@
 {
     "name": "hapi-alimama",
-    "version": "1.0.0",
+    "version": "1.6.0",
     "description": "A Hapi plugin for the alimama",
     "main": "./lib",
     "scripts": {
@@ -22,16 +22,17 @@
     "license": "MIT",
     "dependencies": {
         "form-data": "^0.2.0",
-        "mime": "~1.3.4",
-        "ws": "^0.4.32",
         "iconv-lite": "^0.4.7",
+        "joi": "^17.3.0",
+        "mime": "~1.3.4",
+        "request": "~2.72.0",
         "urlencode": "^1.1.0",
-        "request": "~2.72.0"
+        "ws": "^0.4.32"
     },
     "devDependencies": {
         "code": "^4.0.0",
         "eslint": "^3.7.1",
-        "hapi": "^15.1.1"
+        "@hapi/hapi": "^20.0.3"
     },
     "peerDependencies": {},
     "bugs": {
@@ -39,6 +40,6 @@
     },
     "homepage": "https://github.com/dhso/hapi-alimama",
     "engines": {
-        "node": ">=4.0.0"
+        "node": ">=12.0.0"
     }
 }

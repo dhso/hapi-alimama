@@ -1,5 +1,5 @@
 # hapi-alimama
-A Hapi plugin for alimama sdk 
+A Hapi plugin for alimama sdk
 
 # install
 ```

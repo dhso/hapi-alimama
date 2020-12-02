@@ -4,24 +4,24 @@
 
 ApiClient = require('../index.js').ApiClient;
 
-const client = new ApiClient({
-    'appkey':'23897902',
-    'appsecret':'26657347b25d2e4bb454696ae717f988',
-    'url':'http://gw.api.taobao.com/router/rest2'
+var client = new ApiClient({
+    'appkey':'********',
+    'appsecret':'*********************',
+    'url':'http://gw.api.taobao.com/router/rest'
 });
 
-client.execute('alibaba.aliqin.fc.sms.num.send',
+client.executeWithHeader('alipay.user.trade.search',
     {
-        'rec_num':'17612345678',
-        'sms_free_sign_name':'就业指导中心',
-        'sms_param': '{"name":"姓名"}',
-        'sms_template_code': 'SMS_70135147',
-        'sms_type': 'normal'
+        'page_no':1,
+        'page_size':100,
+        'start_time':'2017-03-21 00:00:00',
+        'end_time':'2017-03-23 23:59:59',
+        'session':'70000100f25719047abee9303ca8ee5d2e84f19cdd4edfb48d5e917a3e9a4aca99aaf042153472040'
     },
+    {},
     function (error,response) {
         if(!error)
             console.log(response);
         else
             console.log(error);
-    }
-);
+    })

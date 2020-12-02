@@ -31,20 +31,18 @@ function TopClient(options) {
  * @param {Object} defaultResponse
  * @param {Function(err, response)} callback
  */
-TopClient.prototype.invoke = function (type,method, params,reponseNames, callback) {
+TopClient.prototype.invoke = function (type,method, params,reponseNames,httpHeaders,callback) {
     params.method = method;
-    this.request(type,params,function (err, result) {
+    this.request(type,params,httpHeaders,function (err, result) {
         if (err) {
             return callback(err);
         }
         var response = result;
         if (reponseNames && reponseNames.length > 0) {
-            var retResult = undefined;
             for (var i = 0; i < reponseNames.length; i++) {
                 var name = reponseNames[i];
-                retResult = response[name];
-                if (retResult != undefined) {
-                    response = retResult;
+                response = response[name];
+                if (response === undefined) {
                     break;
                 }
             }
@@ -61,7 +59,7 @@ TopClient.prototype.invoke = function (type,method, params,reponseNames, callbac
  * @param {Function(err, result)} callback
  * @public
  */
-TopClient.prototype.request = function (type,params,callback) {
+TopClient.prototype.request = function (type,params,httpHeaders,callback) {
     var err = util.checkRequired(params, 'method');
     if (err) {
         return callback(err);
@@ -84,6 +82,8 @@ TopClient.prototype.request = function (type,params,callback) {
     for (var key in params) {
         if(typeof params[key] === 'object' && Buffer.isBuffer(params[key])){
             request.attach(key,params[key],{knownLength:params[key].length,filename:key})
+        } else if(typeof params[key] === 'object' && Stream.Readable(params[key]) && !util.is(params[key]).a(String)){
+            request.attach(key, params[key]);
         } else if(typeof params[key] === 'object'){
             args[key] = JSON.stringify(params[key]);
         } else{
@@ -92,6 +92,11 @@ TopClient.prototype.request = function (type,params,callback) {
     }
 
     args.sign = this.sign(args);
+
+    for(var key in httpHeaders) {
+        request.header(key,httpHeaders[key]);
+    }
+
     for(var key in args){
         request.field(key, args[key]);
     }
@@ -145,11 +150,15 @@ TopClient.prototype.sign = function (params) {
  * execute top api
  */
 TopClient.prototype.execute = function (apiname,params,callback) {
-    this.invoke('post',apiname, params, [util.getApiResponseName(apiname)], callback);
+    this.invoke('post',apiname, params, [util.getApiResponseName(apiname)], [], callback);
+};
+
+TopClient.prototype.executeWithHeader = function (apiname,params,httpHeaders,callback) {
+    this.invoke('post',apiname, params, [util.getApiResponseName(apiname)], httpHeaders || [], callback);
 };
 
 TopClient.prototype.get = function (apiname,params,callback) {
-    this.invoke('get',apiname, params, [util.getApiResponseName(apiname)], callback);
+    this.invoke('get',apiname, params, [util.getApiResponseName(apiname)], [], callback);
 };
 
 exports.TopClient = TopClient;
